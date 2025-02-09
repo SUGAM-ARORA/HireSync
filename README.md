@@ -1,139 +1,85 @@
-# HireSync: Revolutionize Employee Onboarding with Azure Automation
+# HireSync 🚀
 
-![alt text](image.png)
+> Revolutionize Employee Onboarding with Azure Automation
 
-## Azure Services Used:
-
-1. Azure AD
-2. Azure Logic Apps
-3. Azure Email Service (part of Logic Apps connector)
-4. Azure Resource Manager
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 ## Overview
 
-Welcome to **HireSync**, the ultimate solution for automating the employee onboarding process. By harnessing the power of Azure Logic Apps, this project transforms how new employees are onboarded into Azure AD and assigned the necessary Azure resources. Say goodbye to manual processes and hello to efficiency, consistency, and a streamlined onboarding experience.
+HireSync transforms employee onboarding by automating the entire process using Azure Logic Apps. From user creation in Azure AD to resource provisioning and welcome emails, HireSync streamlines every step of bringing new team members aboard.
 
-## What is Azure Logic Apps?
+![HireSync Workflow](https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&q=80&w=1000)
 
-Azure Logic Apps is a cloud service designed to simplify the automation and orchestration of tasks, business processes, and workflows. Whether you're integrating apps, data, systems, or services across enterprises or organizations, Azure Logic Apps lets you create sophisticated workflows that handle everything from simple email notifications to complex, multi-system processes.
+## 🌟 Key Features
 
-## Project Overview
+- **Automated User Creation** in Azure AD/Entra ID
+- **Smart Group Assignment** based on roles
+- **Automated Resource Provisioning** via ARM templates
+- **Intelligent Email Processing** for onboarding requests
+- **Automated Welcome Emails** with credentials
+- **Comprehensive Monitoring** and logging
 
-1. **Trigger and Initialize Variables**
-2. **Parsing Email Content**
-3. **Creating a User in Entra ID**
-4. **Conditional Logic for Group Assignment**
-5. **Adding User to Groups**
-6. **Provisioning Resources using ARM**
-7. **Sending Welcome Email**
-8. **Monitoring and Review**
+## 🛠️ Azure Services Used
 
-## Step-by-Step Implementation
+- Azure AD/Entra ID
+- Azure Logic Apps
+- Azure Email Service
+- Azure Resource Manager
 
-### 1. Trigger and Initialize Variables
+## 🚀 Getting Started
 
-**Objective**: Kick off the workflow upon receiving an email about a new hire and initialize variables to capture the email content.
+### Prerequisites
 
-**Actions**:
-- **Configure Email Trigger**: Set up an email trigger in Azure Logic Apps that activates when an email is received at a specific mailbox indicating a new hire.
-- **Initialize Variables**: Create variables to store the email body content and other relevant information that will be parsed and used in subsequent steps.
+- Azure Subscription
+- Azure AD Admin privileges
+- Email account for notifications
 
-### 2. Parsing Email Content
+### Quick Start
 
-**Objective**: Extract vital details from the email, such as the new hire's first name, last name, email, job position, and department.
+1. Clone the repository:
+\`\`\`bash
+git clone https://github.com/SUGAM-ARORA/hiresync.git
+cd hiresync
+\`\`\`
 
-**Actions**:
-- **Use Compose Action**: Implement the Compose action in Logic Apps to parse the email content. Extract the required details using expressions and string manipulation functions.
+2. Deploy the Logic App:
+   - Navigate to Azure Portal
+   - Create a new Logic App
+   - Import the workflow from \`/src/workflows/main-workflow.json\`
 
-### 3. Creating a User in Entra ID
+3. Configure environment variables:
+   - Update \`config/settings.json\` with your Azure credentials
+   - Set up email notifications
 
-**Objective**: Seamlessly create a new user in Entra ID using the extracted details.
+4. Test the deployment:
+   - Send a test onboarding email
+   - Verify user creation and resource provisioning
 
-**Actions**:
-- **Use Entra ID Connector**: Employ the Entra ID (Azure AD) connector within Logic Apps to automatically create a new user profile. Populate the user details with the parsed information from the email.
+## 📖 Documentation
 
-### 4. Conditional Logic for Group Assignment
+- [Complete Setup Guide](docs/setup.md)
+- [Architecture Overview](docs/architecture.md)
+- [Configuration Options](docs/configuration.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
-**Objective**: Assign the new user to appropriate groups based on their job position.
+## 🤝 Contributing
 
-**Actions**:
-- **Implement Conditional Logic**: Set up conditional statements to evaluate the job position and determine the appropriate group assignments.
-- **Add to Groups**: Use the Entra ID connector to add the new user to the determined groups based on the evaluated conditions.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### 5. Adding User to Groups
+## 📜 License
 
-**Objective**: Ensure the new user is added to all necessary groups for their role.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**Actions**:
-- **Group Addition**: Extend the Logic App workflow to include additional group assignments if necessary, ensuring the user is added to all relevant groups for their role.
+## 🔒 Security
 
-### 6. Provisioning Resources using ARM
+For security concerns, please see our [Security Policy](SECURITY.md).
 
-**Objective**: Automatically provision necessary Azure resources for the new hire.
+## 🙋‍♂️ Support
 
-**Actions**:
-- **Call ARM API**: Utilize an HTTP action in Logic Apps to call the Azure Resource Manager (ARM) API. This will provision the required resources, such as virtual machines or specific permissions, based on predefined templates.
+- Create an [Issue](https://github.com/yourusername/hiresync/issues)
+- Join our [Discussions](https://github.com/yourusername/hiresync/discussions)
 
-### 7. Sending Welcome Email
+## ⭐ Show your support
 
-**Objective**: Send a personalized welcome email to the new hire with their login credentials and essential instructions.
-
-**Actions**:
-- **Leverage Outlook Connector**: Use the Outlook connector in Logic Apps to craft and send a customized welcome email. Include login credentials, access instructions, and any other relevant information for the new hire.
-
-### 8. Monitoring and Review
-
-**Objective**: Maintain a smooth onboarding process by monitoring and reviewing the workflow.
-
-**Actions**:
-- **Monitor Runs History**: Regularly check the Logic Apps runs history to ensure that all steps are executed as expected.
-- **Review Azure AD Logs**: Periodically review Azure AD logs to verify that users are being created correctly, groups are assigned accurately, and resources are provisioned without issues.
-
-## Testing the Logic App
-
-**Objective**: Validate the Logic App to ensure flawless operation.
-
-**Actions**:
-- **Simulate New Hire Email**: Test the workflow by sending a sample new hire email to the configured mailbox.
-- **Verify Each Step**: Confirm that the new user is created in Entra ID, assigned the correct roles and groups, provisioned the necessary resources, and sent a welcome email.
-
-## Overcoming Challenges
-
-### Email Content Parsing
-
-**Challenge**: Parsing HTML-formatted email content in Azure Logic Apps.
-
-**Solution**: Utilized the Compose action with string functions to effectively clean and extract information from the HTML content.
-
-### User Role Assignment
-
-**Challenge**: Correctly assigning roles and groups based on job position.
-
-**Solution**: Implemented conditional logic to dynamically evaluate job positions and assign appropriate groups.
-
-### Resource Provisioning Permissions
-
-**Challenge**: Managing permissions for Azure Resource Manager (ARM) during resource provisioning.
-
-**Solution**: Configured HTTP actions to securely call ARM APIs and assign necessary roles, ensuring Logic App permissions are correctly handled.
-
-### Managing Credentials and Tokens
-
-**Challenge**: Securely handling authentication tokens for API calls.
-
-**Solution**: Set up the Logic App to securely retrieve and use authentication tokens for interactions with Entra ID and ARM.
-
-### Configuration
-Before deploying this logic app, replace the following placeholders in the logic-app-definition.json file with the actual values from your Azure environment:
-
-1. {client-id}
-2. {tenant-id}
-3. {group-id-cloud-engineer}
-4. {group-id-data-analyst}
-5. {subscription-id}
-6. {resource-group-name}
-7. {client-secret}
-
-
-By following this guide, you can transform your employee onboarding process into a model of efficiency and consistency. Welcome to the future of onboarding with **HireSync** – where automation meets excellence.
-
+Give a ⭐️ if this project helped you!

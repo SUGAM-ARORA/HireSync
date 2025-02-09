@@ -1,0 +1,197 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "Initialize_Variables": {
+        "type": "InitializeVariable",
+        "inputs": {
+          "variables": [
+            {
+              "name": "firstName",
+              "type": "string"
+            },
+            {
+              "name": "lastName",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "department",
+              "type": "string"
+            },
+            {
+              "name": "position",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "Parse_Email_Content": {
+        "type": "ParseJson",
+        "inputs": {
+          "content": "@triggerBody()?['body']",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "firstName": { "type": "string" },
+              "lastName": { "type": "string" },
+              "email": { "type": "string" },
+              "department": { "type": "string" },
+              "position": { "type": "string" }
+            }
+          }
+        }
+      },
+      "Create_User": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['azuread']['connectionId']"
+            }
+          },
+          "method": "post",
+          "path": "/v1.0/users",
+          "body": {
+            "accountEnabled": true,
+            "displayName": "@{variables('firstName')} @{variables('lastName')}",
+            "mailNickname": "@{replace(variables('firstName'), ' ', '')}@{replace(variables('lastName'), ' ', '')}",
+            "userPrincipalName": "@{variables('email')}",
+            "passwordProfile": {
+              "forceChangePasswordNextSignIn": true,
+              "password": "@{guid()}"
+            }
+          }
+        }
+      },
+      "Assign_Groups": {
+        "type": "Switch",
+        "expression": "@variables('department')",
+        "cases": {
+          "Engineering": {
+            "actions": {
+              "Add_To_Engineering_Group": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "name": "@parameters('$connections')['azuread']['connectionId']"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/v1.0/groups/@{parameters('engineeringGroupId')}/members/$ref",
+                  "body": {
+                    "@odata.id": "https://graph.microsoft.com/v1.0/directoryObjects/@{body('Create_User')?['id']}"
+                  }
+                }
+              }
+            }
+          },
+          "Sales": {
+            "actions": {
+              "Add_To_Sales_Group": {
+                "type": "ApiConnection",
+                "inputs": {
+                  "host": {
+                    "connection": {
+                      "name": "@parameters('$connections')['azuread']['connectionId']"
+                    }
+                  },
+                  "method": "post",
+                  "path": "/v1.0/groups/@{parameters('salesGroupId')}/members/$ref",
+                  "body": {
+                    "@odata.id": "https://graph.microsoft.com/v1.0/directoryObjects/@{body('Create_User')?['id']}"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Deploy_Resources": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['arm']['connectionId']"
+            }
+          },
+          "method": "put",
+          "path": "/subscriptions/@{parameters('subscriptionId')}/resourcegroups/@{parameters('resourceGroupName')}/providers/Microsoft.Resources/deployments/@{guid()}",
+          "body": {
+            "properties": {
+              "mode": "Incremental",
+              "template": "@json(variables('armTemplate'))",
+              "parameters": {
+                "userId": { "value": "@body('Create_User')?['id']" },
+                "department": { "value": "@variables('department')" }
+              }
+            }
+          }
+        }
+      },
+      "Send_Welcome_Email": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['office365']['connectionId']"
+            }
+          },
+          "method": "post",
+          "path": "/v2/Mail",
+          "body": {
+            "To": "@variables('email')",
+            "Subject": "Welcome to Our Company!",
+            "Body": "<p>Welcome @{variables('firstName')}!</p><p>Your account has been created. Please log in to change your password.</p>"
+          }
+        }
+      }
+    },
+    "triggers": {
+      "When_Email_Arrives": {
+        "type": "ApiConnection",
+        "inputs": {
+          "host": {
+            "connection": {
+              "name": "@parameters('$connections')['office365']['connectionId']"
+            }
+          },
+          "method": "get",
+          "path": "/Mail/OnNewEmail",
+          "queries": {
+            "folderPath": "Inbox",
+            "importance": "Any",
+            "fetchOnlyWithAttachment": false,
+            "includeAttachments": false
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "$connections": {
+      "defaultValue": {},
+      "type": "Object"
+    },
+    "engineeringGroupId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "salesGroupId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "subscriptionId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "email": {
+    "notificationEmail": "hr@yourdomain.com",
+    "templatePath": "src/templates/email-templates"
+  },
+  "azure": {
+    "tenantId": "",
+    "subscriptionId": "",
+    "resourceGroup": "hiresync-resources",
+    "location": "eastus2",
+    "groups": {
+      "engineering": "",
+      "sales": "",
+      "marketing": "",
+      "hr": ""
+    }
+  },
+  "workflow": {
+    "approvalRequired": true,
+    "defaultResourceTemplate": "user-resources.json",
+    "retentionDays": 90
+  }
+}
